@@ -15,8 +15,12 @@ struct TestCar: Codable {
 
 struct TestCarEndpoint: EndPoint {
     typealias Response = [TestCar]
-    var httpMethod: HTTPMethod { return .get }
-    var path: String { return "/cars.json" }
+    var httpMethod: HTTPMethod {
+        return .get
+    }
+    var path: String {
+        return "/cars.json"
+    }
 }
 
 class TestClient: APIClient {
@@ -24,13 +28,13 @@ class TestClient: APIClient {
     private var scheme: String
     private var operationQueue: OperationQueue
     
-    var baseUrlComponents: URLComponents {
+    lazy var baseUrlComponents: URLComponents = {
         var components = URLComponents()
         components.host = host
         components.scheme = scheme
         
         return components
-    }
+    }()
     
     var session: URLSession {
         return URLSession.shared
@@ -44,8 +48,8 @@ class TestClient: APIClient {
         self.operationQueue = queue
     }
     
-    func queueRequest<T:EndPoint>(for resource: T, completion: @escaping (APIResult<T>) -> Void) -> Operation {
-        let operation = NetworkOperation<T>(client: self, resource: resource, completion: completion)
+    func queueRequest<T:EndPoint>(for endpoint: T, completion: @escaping (APIResult<T>) -> Void) -> Operation {
+        let operation = NetworkOperation<T>(client: self, endpoint: endpoint, completion: completion)
         defer { self.operationQueue.addOperation(operation) }
         
         return operation
